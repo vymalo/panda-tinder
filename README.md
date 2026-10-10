@@ -69,6 +69,24 @@ The styling uses modern CSS: `color-mix()` and custom properties. On a very old 
 
 ## Deploying
 
-`.github/workflows/pages.yml` publishes the site to GitHub Pages on every push to `main`. It needs Pages enabled once under **Settings → Pages → Source: GitHub Actions**.
+The site is live at **https://vymalo.github.io/panda-tinder**.
 
-Note that Pages on a **private** repository requires a paid plan. For a free public deployment, make the repository public or host the files anywhere that serves static files — there is nothing to build.
+`.github/workflows/pages.yml` publishes it on every push to `main`. Enable it once under **Settings → Pages → Source: GitHub Actions**.
+
+Pages on a **private** repository requires a paid plan; this repository is public, so it is free. The files could equally be hosted anywhere that serves static files — there is nothing to build.
+
+### Workflow action versions
+
+The pins in the workflow were checked against the upstream releases rather than assumed:
+
+| Action | Pinned | Latest |
+| --- | --- | --- |
+| `actions/checkout` | `v7` | v7.0.1 |
+| `actions/setup-node` | `v7` | v7.1.0 |
+| `actions/configure-pages` | `v6` | v6.0.0 |
+| `actions/upload-pages-artifact` | `v5` | v5.0.0 |
+| `actions/deploy-pages` | `v5` | v5.0.1 |
+
+These are moving major tags, so a patch release is picked up automatically.
+
+`node-version` is pinned to `'24'`. Node 24 is the Active LTS line, but note that its active support ends **20 October 2026**, after which it moves to maintenance until 30 April 2028. Node 26 becomes LTS on **28 October 2026**; moving to it is a one-line change once the toolchain you use locally has caught up.
