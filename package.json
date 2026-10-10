@@ -1,0 +1,11 @@
+{
+  "name": "panda-tinder",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A swipe-to-match dating site where every profile is a panda.",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test test/*.test.js"
+  }
+}

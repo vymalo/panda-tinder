@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Panda Tinder 🐼 — find your bamboo soulmate</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <h1 class="logo">🐼 PandaTinder</h1>
+    <nav class="tabs" role="tablist">
+      <button class="tab is-active" role="tab" data-view="swipe">Swipe</button>
+      <button class="tab" role="tab" data-view="matches">
+        Matches <span class="badge" id="match-count" hidden>0</span>
+      </button>
+    </nav>
+  </header>
+
+  <main>
+    <section id="view-swipe" class="view is-active">
+      <div id="deck" class="deck"></div>
+
+      <div id="done-panel" class="done-panel" hidden>
+        <div class="done-emoji">🎋</div>
+        <h2>That's every panda in the reserve</h2>
+        <p id="done-summary" class="done-summary"></p>
+        <button id="reset" class="reset">Reset the deck</button>
+      </div>
+
+      <div id="controls" class="controls">
+        <button id="pass" class="fab fab-pass" aria-label="Pass">✕</button>
+        <button id="like" class="fab fab-like" aria-label="Like">♥</button>
+      </div>
+      <p class="hint">Drag the card, use the buttons, or press <kbd>←</kbd> / <kbd>→</kbd></p>
+    </section>
+
+    <section id="view-matches" class="view">
+      <h2 class="matches-title">Your matches</h2>
+      <p class="matches-sub">Ranked by how well you'd actually get on.</p>
+      <ul id="match-list" class="match-list"></ul>
+      <p id="no-matches" class="empty">
+        No matches yet. Go swipe right on somebody. Anyone. They're all pandas.
+      </p>
+      <button id="reset-matches" class="reset">Reset the deck</button>
+    </section>
+  </main>
+
+  <script type="module" src="src/app.js"></script>
+</body>
+</html>

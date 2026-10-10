@@ -1,0 +1,410 @@
+/* Panda Tinder — a bright, saturated dating-app palette.
+   Every panda carries an accent; the card, the avatar and the score all
+   borrow it, so the deck reads as a wall of colour rather than grey cards. */
+
+:root {
+  /* brand */
+  --pink: #ff2e74;
+  --pink-dark: #d81b60;
+  --green: #12b76a;
+  --green-dark: #0a8f52;
+  --ink: #191233;
+  --muted: #6d6690;
+
+  --paper: #ffffff;
+  --bg: #fff3f8;
+
+  /* the accent wheel */
+  --mint: #14c8a0;
+  --violet: #8b5cf6;
+  --sky: #2f9bff;
+  --amber: #ffa41b;
+  --coral: #ff6b4a;
+  --teal: #0ea5b7;
+  --lime: #86cf1d;
+  --accent: var(--pink);
+
+  --radius: 24px;
+  --shadow: 0 20px 45px rgba(25, 18, 51, 0.16);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  color: var(--ink);
+  font-family: ui-rounded, "Segoe UI", system-ui, -apple-system, sans-serif;
+  background:
+    radial-gradient(900px 520px at 5% -8%, #ffd9e8 0%, transparent 58%),
+    radial-gradient(760px 460px at 100% 2%, #c9f4e6 0%, transparent 55%),
+    radial-gradient(800px 500px at 50% 108%, #ffe6c7 0%, transparent 58%),
+    linear-gradient(170deg, #fff4f9 0%, #f6f3ff 48%, #eefaf6 100%);
+  background-attachment: fixed;
+}
+
+/* ---------- top bar ---------- */
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 22px;
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+.logo {
+  font-size: 1.45rem;
+  margin: 0;
+  letter-spacing: -0.02em;
+  background: linear-gradient(100deg, var(--pink) 0%, var(--violet) 55%, var(--green) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.tabs { display: flex; gap: 8px; }
+
+.tab {
+  position: relative;
+  border: 2px solid transparent;
+  background: rgba(255, 255, 255, 0.78);
+  color: var(--muted);
+  font: inherit;
+  font-weight: 700;
+  padding: 9px 16px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s, transform 0.18s, box-shadow 0.18s;
+}
+.tab:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(25, 18, 51, 0.1); }
+.tab.is-active {
+  background: linear-gradient(120deg, var(--pink) 0%, var(--violet) 100%);
+  color: #fff;
+  box-shadow: 0 8px 20px rgba(255, 46, 116, 0.35);
+}
+
+.badge {
+  display: inline-block;
+  min-width: 20px;
+  margin-left: 6px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: var(--amber);
+  color: #4a2c00;
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-align: center;
+}
+
+/* ---------- views ---------- */
+
+main { max-width: 560px; margin: 0 auto; padding: 0 18px 60px; }
+
+.view { display: none; }
+.view.is-active { display: block; }
+
+/* ---------- card deck ---------- */
+
+.deck {
+  position: relative;
+  height: 560px;
+  margin-top: 6px;
+  user-select: none;
+  touch-action: pan-y;
+}
+
+.card {
+  position: absolute;
+  inset: 0;
+  background: var(--paper);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  will-change: transform;
+  transform-origin: 50% 120%;
+  border: 3px solid var(--accent);
+}
+
+.card.is-top { cursor: grab; }
+.card.is-top:active { cursor: grabbing; }
+
+.card-behind {
+  transform: translateY(14px) scale(0.955);
+  filter: saturate(0.75) brightness(0.97);
+}
+
+/* the coloured band at the top of every card */
+.card-art {
+  position: relative;
+  height: 214px;
+  display: grid;
+  place-items: center;
+  font-size: 5.4rem;
+  background: linear-gradient(140deg,
+    color-mix(in srgb, var(--accent) 26%, white) 0%,
+    color-mix(in srgb, var(--accent) 8%, white) 100%);
+  border-bottom: 3px solid color-mix(in srgb, var(--accent) 35%, white);
+}
+
+/* diagonal colour streak behind the emoji */
+.card-art::before {
+  content: "";
+  position: absolute;
+  inset: -40% -10% auto -10%;
+  height: 150%;
+  background: linear-gradient(115deg,
+    transparent 30%,
+    color-mix(in srgb, var(--accent) 22%, transparent) 50%,
+    transparent 70%);
+  transform: rotate(-8deg);
+}
+
+.card-body {
+  padding: 18px 20px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
+}
+
+.card-name {
+  margin: 0;
+  font-size: 1.55rem;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.card-age {
+  color: var(--accent);
+  font-weight: 800;
+  font-size: 1.1rem;
+}
+
+.card-location {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.card-tagline {
+  margin: 2px 0 0;
+  font-style: italic;
+  font-weight: 600;
+  color: color-mix(in srgb, var(--accent) 78%, black);
+}
+
+.card-bio {
+  margin: 0;
+  line-height: 1.5;
+  font-size: 0.95rem;
+  color: #3f3a5c;
+}
+
+.likes { display: flex; flex-wrap: wrap; gap: 7px; margin: 4px 0 0; padding: 0; list-style: none; }
+.likes li {
+  border-radius: 999px;
+  padding: 5px 12px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: color-mix(in srgb, var(--accent) 82%, black);
+  background: color-mix(in srgb, var(--accent) 16%, white);
+  border: 1.5px solid color-mix(in srgb, var(--accent) 38%, white);
+}
+
+/* swipe stamps */
+.stamp {
+  position: absolute;
+  top: 28px;
+  padding: 6px 18px;
+  border-radius: 12px;
+  border: 4px solid currentColor;
+  font-size: 1.6rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 3;
+  backdrop-filter: blur(2px);
+}
+.stamp-like {
+  right: 20px;
+  color: var(--green);
+  background: rgba(18, 183, 106, 0.12);
+  transform: rotate(14deg);
+}
+.stamp-pass {
+  left: 20px;
+  color: var(--pink);
+  background: rgba(255, 46, 116, 0.12);
+  transform: rotate(-14deg);
+}
+
+/* ---------- controls ---------- */
+
+.controls {
+  display: flex;
+  justify-content: center;
+  gap: 26px;
+  margin-top: 26px;
+}
+
+.fab {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  border: 0;
+  font-size: 1.7rem;
+  background: #fff;
+  cursor: pointer;
+  transition: transform 0.16s, box-shadow 0.16s, background 0.16s, color 0.16s;
+}
+.fab:hover { transform: translateY(-3px) scale(1.05); }
+.fab:active { transform: scale(0.94); }
+.fab:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+.fab-pass {
+  color: var(--pink);
+  border: 3px solid color-mix(in srgb, var(--pink) 45%, white);
+  box-shadow: 0 12px 26px rgba(255, 46, 116, 0.28);
+}
+.fab-pass:hover { background: var(--pink); color: #fff; }
+
+.fab-like {
+  color: #fff;
+  background: linear-gradient(140deg, var(--green) 0%, var(--teal) 100%);
+  box-shadow: 0 12px 26px rgba(18, 183, 106, 0.38);
+}
+.fab-like:hover { background: linear-gradient(140deg, var(--green-dark) 0%, var(--teal) 100%); }
+
+.hint {
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.84rem;
+  margin-top: 16px;
+}
+kbd {
+  background: #fff;
+  border: 1.5px solid #ddd6f0;
+  border-bottom-width: 3px;
+  border-radius: 7px;
+  padding: 1px 7px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--violet);
+}
+
+/* ---------- done panel ---------- */
+
+.done-panel {
+  text-align: center;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 44px 26px;
+  margin-top: 6px;
+  background:
+    linear-gradient(160deg, #fff 0%, color-mix(in srgb, var(--violet) 10%, white) 100%);
+  border: 3px solid color-mix(in srgb, var(--violet) 25%, white);
+}
+.done-emoji { font-size: 3.4rem; }
+.done-panel h2 { margin: 12px 0 6px; font-size: 1.25rem; }
+.done-summary { color: var(--muted); margin: 0 0 22px; font-weight: 600; }
+
+.reset {
+  border: 0;
+  color: #fff;
+  font: inherit;
+  font-weight: 800;
+  padding: 13px 24px;
+  border-radius: 999px;
+  cursor: pointer;
+  background: linear-gradient(120deg, var(--pink) 0%, var(--violet) 100%);
+  box-shadow: 0 10px 24px rgba(139, 92, 246, 0.35);
+  transition: transform 0.16s, box-shadow 0.16s, filter 0.16s;
+}
+.reset:hover { transform: translateY(-2px); filter: brightness(1.07); }
+
+/* ---------- matches ---------- */
+
+.matches-title {
+  margin: 10px 0 2px;
+  background: linear-gradient(100deg, var(--pink) 0%, var(--violet) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.matches-sub { color: var(--muted); margin: 0 0 18px; font-size: 0.92rem; font-weight: 600; }
+
+.match-list { list-style: none; padding: 0; margin: 0 0 24px; display: grid; gap: 12px; }
+
+.match {
+  display: grid;
+  grid-template-columns: 58px 1fr auto;
+  align-items: center;
+  gap: 14px;
+  background: var(--paper);
+  border-radius: 18px;
+  box-shadow: 0 10px 24px rgba(25, 18, 51, 0.09);
+  padding: 14px 16px;
+  border-left: 6px solid var(--accent);
+  animation: rise 0.32s ease both;
+}
+.match:nth-child(1) { animation-delay: 0.02s; }
+.match:nth-child(2) { animation-delay: 0.06s; }
+.match:nth-child(3) { animation-delay: 0.10s; }
+.match:nth-child(4) { animation-delay: 0.14s; }
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+
+.match-emoji {
+  width: 58px;
+  height: 58px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  font-size: 1.7rem;
+  background: linear-gradient(140deg,
+    color-mix(in srgb, var(--accent) 30%, white) 0%,
+    color-mix(in srgb, var(--accent) 10%, white) 100%);
+  border: 2.5px solid color-mix(in srgb, var(--accent) 45%, white);
+}
+.match-name { margin: 0; font-size: 1.05rem; }
+.match-meta { margin: 2px 0 0; color: var(--muted); font-size: 0.84rem; font-weight: 600; }
+
+.match-score { text-align: right; }
+.match-score b {
+  display: block;
+  font-size: 1.3rem;
+  font-weight: 900;
+  color: var(--accent);
+}
+.match-score span { color: var(--muted); font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+
+.empty {
+  color: var(--muted);
+  text-align: center;
+  padding: 30px 10px;
+  font-weight: 600;
+}
+
+/* ---------- swipe gestures ---------- */
+
+.card.dragging { transition: none; }
+.card.settling { transition: transform 0.28s ease, opacity 0.28s ease; }
+
+.card.fly-right { transform: translate(140%, -40px) rotate(22deg) !important; opacity: 0; }
+.card.fly-left { transform: translate(-140%, -40px) rotate(-22deg) !important; opacity: 0; }
+
+@media (max-width: 480px) {
+  .deck { height: 500px; }
+  .card-art { height: 172px; font-size: 4.2rem; }
+}
