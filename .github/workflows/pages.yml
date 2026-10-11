@@ -1,0 +1,50 @@
+name: Deploy to GitHub Pages
+
+# The site is static: "building" it means assembling the handful of files that
+# need serving. Tests run first so a broken commit is never published.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Scoped to what the Pages deployment needs, and nothing more.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Let a running deploy finish rather than cancelling it mid-publish.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '26'
+      - run: npm test
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/configure-pages@v6
+      - name: Assemble the site
+        run: |
+          mkdir -p _site
+          cp index.html styles.css server.js _site/
+          cp -r src _site/src
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: _site
+      - id: deployment
+        uses: actions/deploy-pages@v5
