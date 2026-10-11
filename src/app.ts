@@ -38,8 +38,11 @@ const els = {
   matchList: must<HTMLUListElement>('#match-list'),
   noMatches: must<HTMLElement>('#no-matches'),
   matchCount: must<HTMLElement>('#match-count'),
-  tabs: Array.from(document.querySelectorAll<HTMLButtonElement>('.tab')),
-  views: Array.from(document.querySelectorAll<HTMLElement>('.view')),
+  // The Tailwind migration renamed these. `.tab` and `.view` matched nothing,
+  // which left both arrays empty: the Matches tab did nothing at all and the
+  // views never switched.
+  tabs: Array.from(document.querySelectorAll<HTMLButtonElement>('.pd-tab')),
+  views: Array.from(document.querySelectorAll<HTMLElement>('.pd-view')),
 };
 
 /** Persist the swipe state. localStorage throws in some private modes. */

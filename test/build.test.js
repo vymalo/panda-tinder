@@ -70,6 +70,58 @@ test('the page loads the built script and stylesheet', async () => {
   assert.ok(html.includes('src="src/app.js"'), 'index.html does not load the compiled src/app.js');
 });
 
+test('every selector the app queries at startup exists in index.html', async () => {
+  const [app, html] = await Promise.all([readBuildFile('src/app.js'), readBuildFile('index.html')]);
+
+  // The Tailwind migration renamed .card -> .pd-card and friends. The JS kept
+  // querying the old names, so the `els` lookups returned empty arrays: the
+  // Matches tab did nothing and the views never switched. Nothing failed at
+  // build time, and the page still "worked" enough to look plausible.
+  //
+  // Selectors for elements app.js renders itself (.pd-card, the stamps, match
+  // rows) are excluded on purpose — those are created at runtime and are absent
+  // from index.html by design.
+  const RUNTIME_ONLY = /^\.(pd-card|pd-stamp|pd-match|pd-chip|pd-art|pd-body|pd-fab)/;
+
+  const elsBlock = app.match(/const els = \{([\s\S]*?)\n\};/);
+  assert.ok(elsBlock, 'could not find the `els` element map in the compiled app.js');
+
+  const queried = new Set();
+  for (const match of elsBlock[1].matchAll(/must\(\s*['"]([^'"]+)['"]/g)) {
+    queried.add(match[1]);
+  }
+  for (const match of elsBlock[1].matchAll(/querySelectorAll\(\s*['"]([^'"]+)['"]/g)) {
+    queried.add(match[1]);
+  }
+
+  assert.ok(queried.size > 5, `expected several selectors, found ${queried.size}`);
+
+  // Collect the class and id tokens index.html actually declares, so a selector
+  // is matched as a whole token. A substring test would accept `.tab` because
+  // `class="pd-tab"` contains "tab" — which is exactly the bug this guards.
+  const ids = new Set();
+  const classes = new Set();
+  for (const match of html.matchAll(/\bid="([^"]+)"/g)) ids.add(match[1]);
+  for (const match of html.matchAll(/\bclass="([^"]+)"/g)) {
+    for (const cls of match[1].split(/\s+/)) if (cls) classes.add(cls);
+  }
+
+  const missing = [...queried].filter((selector) => {
+    if (RUNTIME_ONLY.test(selector)) return false;
+
+    const token = selector.split(/[\s>+~:[]/)[0];
+    if (token.startsWith('#')) return !ids.has(token.slice(1));
+    if (token.startsWith('.')) return !classes.has(token.slice(1));
+    return !html.includes(token);
+  });
+
+  assert.deepEqual(
+    missing.sort(),
+    [],
+    `selectors with no match in index.html: ${missing.sort().join(', ')}`,
+  );
+});
+
 test('every pd- class used at runtime exists in the built CSS', async () => {
   const [css, app, html] = await Promise.all([
     readBuildFile('styles.css'),
