@@ -7,42 +7,42 @@
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <header class="topbar">
-    <h1 class="logo">🐼 PandaTinder</h1>
-    <nav class="tabs" role="tablist">
-      <button class="tab is-active" role="tab" data-view="swipe">Swipe</button>
-      <button class="tab" role="tab" data-view="matches">
-        Matches <span class="badge" id="match-count" hidden>0</span>
+  <header class="pd-topbar">
+    <h1 class="pd-logo">🐼 PandaTinder</h1>
+    <nav class="pd-tabs" role="tablist">
+      <button class="pd-tab is-active" role="tab" data-view="swipe">Swipe</button>
+      <button class="pd-tab" role="tab" data-view="matches">
+        Matches <span class="pd-badge" id="match-count" hidden>0</span>
       </button>
     </nav>
   </header>
 
-  <main>
-    <section id="view-swipe" class="view is-active">
-      <div id="deck" class="deck"></div>
+  <main class="pd-main">
+    <section id="view-swipe" class="pd-view is-active">
+      <div id="deck" class="pd-deck"></div>
 
-      <div id="done-panel" class="done-panel" hidden>
-        <div class="done-emoji">🎋</div>
+      <div id="done-panel" class="pd-done" hidden>
+        <div class="pd-done-emoji">🎋</div>
         <h2>That's every panda in the reserve</h2>
-        <p id="done-summary" class="done-summary"></p>
-        <button id="reset" class="reset">Reset the deck</button>
+        <p id="done-summary" class="pd-done-summary"></p>
+        <button id="reset" class="pd-reset">Reset the deck</button>
       </div>
 
-      <div id="controls" class="controls">
-        <button id="pass" class="fab fab-pass" aria-label="Pass">✕</button>
-        <button id="like" class="fab fab-like" aria-label="Like">♥</button>
+      <div id="controls" class="pd-controls">
+        <button id="pass" class="pd-fab pd-fab-pass" aria-label="Pass">✕</button>
+        <button id="like" class="pd-fab pd-fab-like" aria-label="Like">♥</button>
       </div>
-      <p class="hint">Drag the card, use the buttons, or press <kbd>←</kbd> / <kbd>→</kbd></p>
+      <p class="pd-hint">Drag the card, use the buttons, or press <kbd>←</kbd> / <kbd>→</kbd></p>
     </section>
 
-    <section id="view-matches" class="view">
-      <h2 class="matches-title">Your matches</h2>
-      <p class="matches-sub">Ranked by how well you'd actually get on.</p>
-      <ul id="match-list" class="match-list"></ul>
-      <p id="no-matches" class="empty">
+    <section id="view-matches" class="pd-view">
+      <h2 class="pd-matches-title">Your matches</h2>
+      <p class="pd-matches-sub">Ranked by how well you'd actually get on.</p>
+      <ul id="match-list" class="pd-match-list"></ul>
+      <p id="no-matches" class="pd-empty">
         No matches yet. Go swipe right on somebody. Anyone. They're all pandas.
       </p>
-      <button id="reset-matches" class="reset">Reset the deck</button>
+      <button id="reset-matches" class="pd-reset">Reset the deck</button>
     </section>
   </main>
 

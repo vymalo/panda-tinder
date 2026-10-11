@@ -1,21 +1,34 @@
-// The panda roster and the pure logic behind the deck: match scoring,
-// a seeded shuffle, and the swipe state machine. No DOM, no storage here.
+// The panda roster and the pure logic behind the deck: match scoring, a seeded
+// shuffle, and the swipe state machine. No DOM, no storage here.
 
-/**
- * @typedef {Object} Panda
- * @property {string} id
- * @property {string} name
- * @property {number} age
- * @property {string} location
- * @property {string} emoji
- * @property {string} tagline
- * @property {string} bio
- * @property {string[]} likes
- * @property {string} [accent] one of the palette keys in styles.css
- */
+export interface Panda {
+  readonly id: string;
+  readonly name: string;
+  readonly age: number;
+  readonly location: string;
+  readonly emoji: string;
+  readonly tagline: string;
+  readonly bio: string;
+  readonly likes: readonly string[];
+  /** One of the palette keys; `accentFor` falls back to a hashed one. */
+  readonly accent?: Accent;
+}
 
-/** @type {Panda[]} */
-export const PANDAS = [
+export type SwipeAction = 'like' | 'pass';
+
+export interface Match {
+  readonly panda: Panda;
+  readonly score: number;
+}
+
+/** The palette keys the stylesheet knows about. */
+export const ACCENTS = ['mint', 'violet', 'sky', 'amber', 'coral', 'teal', 'lime', 'pink'] as const;
+
+export type Accent = (typeof ACCENTS)[number];
+
+export const ACTIONS: readonly SwipeAction[] = ['like', 'pass'];
+
+export const PANDAS: readonly Panda[] = [
   {
     id: 'bamboo-bae',
     name: 'Bamboo Bae',
@@ -106,39 +119,38 @@ export const PANDAS = [
   },
 ];
 
-export const ACTIONS = ['like', 'pass'];
-
-/** The palette keys the stylesheet knows about. */
-export const ACCENTS = ['mint', 'violet', 'sky', 'amber', 'coral', 'teal', 'lime', 'pink'];
-
-/**
- * The accent for a panda: its own, or a stable one derived from its id.
- * @param {Panda} panda
- * @returns {string}
- */
-export function accentFor(panda) {
-  if (panda.accent && ACCENTS.includes(panda.accent)) return panda.accent;
-  let hash = 0;
-  for (const ch of panda.id) hash = (hash * 31 + ch.charCodeAt(0)) >>> 0;
-  return ACCENTS[hash % ACCENTS.length];
+function isAccent(value: unknown): value is Accent {
+  return typeof value === 'string' && (ACCENTS as readonly string[]).includes(value);
 }
 
 /**
- * Score how well two pandas get on, 0..100.
- * Jaccard overlap of their likes, minus a penalty for a wide age gap.
- * Deterministic and symmetric.
- *
- * @param {Panda} a
- * @param {Panda} b
- * @returns {number} integer in [0, 100]
+ * The accent for a panda: its own, or a stable one derived from its id, so a
+ * panda added without an accent still gets a colour rather than none.
  */
-export function matchScore(a, b) {
+export function accentFor(panda: Panda): Accent {
+  if (isAccent(panda.accent)) return panda.accent;
+
+  let hash = 0;
+  for (const ch of panda.id) hash = (hash * 31 + ch.charCodeAt(0)) >>> 0;
+
+  // ACCENTS is non-empty, so the index is always in range; the assertion keeps
+  // noUncheckedIndexedAccess happy without widening the return type.
+  return ACCENTS[hash % ACCENTS.length] as Accent;
+}
+
+/**
+ * Score how well two pandas get on, 0..100. The Jaccard overlap of their likes,
+ * minus a penalty for a wide age gap. Deterministic and symmetric.
+ */
+export function matchScore(a: Panda, b: Panda): number {
   const setA = new Set(a.likes);
   const setB = new Set(b.likes);
+
   let shared = 0;
   for (const like of setA) {
     if (setB.has(like)) shared += 1;
   }
+
   const union = new Set([...setA, ...setB]).size;
   const overlap = union === 0 ? 0 : shared / union;
 
@@ -149,14 +161,10 @@ export function matchScore(a, b) {
   return Math.max(0, Math.min(100, Math.round(raw)));
 }
 
-/**
- * A small deterministic PRNG (mulberry32) so shuffles are reproducible in tests.
- * @param {number} seed
- * @returns {() => number} values in [0, 1)
- */
-export function rng(seed) {
+/** A small deterministic PRNG (mulberry32), so shuffles are reproducible in tests. */
+export function rng(seed: number): () => number {
   let t = seed >>> 0;
-  return function next() {
+  return function next(): number {
     t += 0x6d2b79f5;
     let r = t;
     r = Math.imul(r ^ (r >>> 15), r | 1);
@@ -165,85 +173,83 @@ export function rng(seed) {
   };
 }
 
-/**
- * Shuffle a copy of the roster with a seeded PRNG (Fisher-Yates).
- * @param {Panda[]} [list]
- * @param {number} [seed]
- * @returns {Panda[]}
- */
-export function buildDeck(list = PANDAS, seed = 1) {
+/** Shuffle a copy of the roster with a seeded PRNG (Fisher-Yates). */
+export function buildDeck(list: readonly Panda[] = PANDAS, seed = 1): Panda[] {
   const deck = list.slice();
   const random = rng(seed);
+
   for (let i = deck.length - 1; i > 0; i -= 1) {
     const j = Math.floor(random() * (i + 1));
-    [deck[i], deck[j]] = [deck[j], deck[i]];
+    const a = deck[i] as Panda;
+    const b = deck[j] as Panda;
+    deck[i] = b;
+    deck[j] = a;
   }
+
   return deck;
 }
 
-/**
- * The swipe state machine: a deck, a cursor, and the likes collected so far.
- */
+/** The swipe state machine: a deck, a cursor, and the likes collected so far. */
 export class SwipeState {
-  /**
-   * @param {Panda[]} [deck]
-   */
-  constructor(deck = buildDeck()) {
+  deck: Panda[];
+  index = 0;
+  liked: string[] = [];
+  passed: string[] = [];
+  seed: number;
+
+  constructor(deck: Panda[] = buildDeck(), seed = 1) {
     this.deck = deck;
-    this.index = 0;
-    /** @type {string[]} */
-    this.liked = [];
-    /** @type {string[]} */
-    this.passed = [];
+    this.seed = seed;
   }
 
   /** The panda currently on top, or null when the deck is exhausted. */
-  get current() {
+  get current(): Panda | null {
     return this.deck[this.index] ?? null;
   }
 
-  get done() {
+  get done(): boolean {
     return this.index >= this.deck.length;
   }
 
-  get remaining() {
+  get remaining(): number {
     return Math.max(0, this.deck.length - this.index);
   }
 
   /**
-   * Swipe the current panda, right (like) or left (pass).
-   * @param {'like'|'pass'} action
-   * @returns {Panda} the panda that was swiped
-   * @throws {Error} when the deck is finished or the action is unknown
+   * Swipe the current panda right (like) or left (pass).
+   * @throws when the deck is finished or the action is unknown
    */
-  swipe(action) {
+  swipe(action: SwipeAction): Panda {
     if (!ACTIONS.includes(action)) {
-      throw new Error(`Unknown action: ${action}`);
+      throw new Error(`Unknown action: ${String(action)}`);
     }
+
     const panda = this.current;
     if (!panda) {
       throw new Error('The deck is finished');
     }
+
     if (action === 'like') {
       this.liked.push(panda.id);
     } else {
       this.passed.push(panda.id);
     }
+
     this.index += 1;
     return panda;
   }
 
   /**
-   * The liked pandas, best match first, each with its score against every
-   * other liked panda averaged in.
-   * @returns {{panda: Panda, score: number}[]}
+   * The liked pandas, best match first, each scored against the other liked
+   * pandas; against the whole roster when only one has been liked.
    */
-  matches() {
+  matches(): Match[] {
     const liked = this.deck.filter((p) => this.liked.includes(p.id));
     const others = liked.length > 1 ? liked : this.deck;
+
     return liked
-      .map((panda) => {
-        const peers = others.filter((o) => o.id !== panda.id);
+      .map((panda): Match => {
+        const peers = others.filter((other) => other.id !== panda.id);
         const total = peers.reduce((sum, peer) => sum + matchScore(panda, peer), 0);
         const score = peers.length === 0 ? 100 : Math.round(total / peers.length);
         return { panda, score };
@@ -252,10 +258,11 @@ export class SwipeState {
   }
 
   /** Start over from a fresh shuffled deck. */
-  reset(seed = Date.now()) {
+  reset(seed: number = Date.now()): void {
     this.deck = buildDeck(PANDAS, seed);
     this.index = 0;
     this.liked = [];
     this.passed = [];
+    this.seed = seed;
   }
 }

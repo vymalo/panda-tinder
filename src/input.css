@@ -1,0 +1,372 @@
+@import "tailwindcss";
+
+/* The palette lives in Tailwind's theme. `static` is essential: without it
+   Tailwind tree-shakes variables that no utility references, and since the
+   accent is applied at runtime via `var(--color-<accent>)` in JS, none of these
+   are referenced at build time. A plain @theme emits only the few accents that
+   happen to appear in a class name, and the rest silently resolve to nothing. */
+@theme static {
+  --color-pink-brand: #ff2e74;
+  --color-pink-dark: #d81b60;
+  --color-green-brand: #12b76a;
+  --color-green-dark: #0a8f52;
+  --color-ink: #191233;
+  --color-muted: #6d6690;
+  --color-paper: #ffffff;
+
+  --color-mint: #14c8a0;
+  --color-violet: #8b5cf6;
+  --color-sky: #2f9bff;
+  --color-amber: #ffa41b;
+  --color-coral: #ff6b4a;
+  --color-teal: #0ea5b7;
+  --color-lime: #86cf1d;
+  --color-pink: #ff2e74;
+
+  --radius-card: 24px;
+  --shadow-card: 0 20px 45px rgb(25 18 51 / 0.16);
+}
+
+@layer base {
+  body {
+    @apply m-0 min-h-screen text-ink;
+    font-family: ui-rounded, "Segoe UI", system-ui, -apple-system, sans-serif;
+    background:
+      radial-gradient(900px 520px at 5% -8%, #ffd9e8 0%, transparent 58%),
+      radial-gradient(760px 460px at 100% 2%, #c9f4e6 0%, transparent 55%),
+      radial-gradient(800px 500px at 50% 108%, #ffe6c7 0%, transparent 58%),
+      linear-gradient(170deg, #fff4f9 0%, #f6f3ff 48%, #eefaf6 100%);
+    background-attachment: fixed;
+  }
+
+  kbd {
+    @apply rounded-md border-2 border-b-[3px] border-solid border-[#ddd6f0] bg-white px-2 py-0.5
+           text-xs font-bold text-violet;
+  }
+}
+
+/* The accent variable is set per element in JS; see the rules below the
+   components layer, which cannot go through @apply. */
+@layer components {
+  .pd-topbar {
+    @apply mx-auto flex max-w-[560px] items-center justify-between gap-4 px-[22px] py-[18px];
+  }
+
+  .pd-logo {
+    @apply m-0 bg-gradient-to-r from-pink-brand via-violet to-green-brand bg-clip-text
+           text-[1.45rem] tracking-tight text-transparent;
+  }
+
+  .pd-tabs {
+    @apply flex gap-2;
+  }
+
+  .pd-tab {
+    @apply relative cursor-pointer rounded-full border-2 border-transparent bg-white/80 px-4 py-2
+           font-bold text-muted transition hover:-translate-y-px hover:shadow-md;
+  }
+
+  .pd-tab.is-active {
+    @apply bg-gradient-to-br from-pink-brand to-violet text-white
+           shadow-[0_8px_20px_rgb(255_46_116/0.35)];
+  }
+
+  .pd-badge {
+    @apply ml-1.5 inline-block min-w-5 rounded-full bg-amber px-1.5 py-px text-center text-xs
+           font-extrabold text-[#4a2c00];
+  }
+
+  .pd-main {
+    @apply mx-auto max-w-[560px] px-[18px] pb-[60px];
+  }
+
+  .pd-view {
+    @apply hidden;
+  }
+
+  .pd-view.is-active {
+    @apply block;
+  }
+
+  /* ---------- deck ---------- */
+
+  .pd-deck {
+    @apply relative mt-1.5 h-[560px] touch-pan-y select-none;
+  }
+
+  .pd-card {
+    @apply absolute inset-0 flex flex-col overflow-hidden rounded-card border-[3px]
+           bg-paper shadow-card;
+    transform-origin: 50% 120%;
+    will-change: transform;
+  }
+
+  .pd-card.is-top {
+    @apply cursor-grab;
+  }
+
+  .pd-card.is-top:active {
+    @apply cursor-grabbing;
+  }
+
+  .pd-card-behind {
+    transform: translateY(14px) scale(0.955);
+    filter: saturate(0.75) brightness(0.97);
+  }
+
+  .pd-art {
+    @apply relative grid h-[214px] place-items-center border-b-[3px] text-[5.4rem];
+    background: linear-gradient(
+      140deg,
+      color-mix(in srgb, var(--accent) 26%, white) 0%,
+      color-mix(in srgb, var(--accent) 8%, white) 100%
+    );
+    border-bottom-color: color-mix(in srgb, var(--accent) 35%, white);
+  }
+
+  .pd-art::before {
+    content: "";
+    @apply absolute -inset-x-[10%] -top-[40%] h-[150%] -rotate-8;
+    background: linear-gradient(
+      115deg,
+      transparent 30%,
+      color-mix(in srgb, var(--accent) 22%, transparent) 50%,
+      transparent 70%
+    );
+  }
+
+  .pd-body {
+    @apply flex flex-col gap-2.5 overflow-y-auto px-5 pt-[18px] pb-[22px];
+  }
+
+  .pd-name {
+    @apply m-0 flex flex-wrap items-baseline gap-2.5 text-2xl;
+  }
+
+  .pd-age {
+    @apply text-lg font-extrabold;
+  }
+
+  .pd-location {
+    @apply m-0 text-sm font-semibold text-muted;
+  }
+
+  .pd-tagline {
+    @apply mt-0.5 mb-0 font-semibold italic;
+    color: color-mix(in srgb, var(--accent) 78%, black);
+  }
+
+  .pd-bio {
+    @apply m-0 text-[0.95rem] leading-normal text-[#3f3a5c];
+  }
+
+  .pd-likes {
+    @apply mt-1 flex list-none flex-wrap gap-[7px] p-0;
+  }
+
+  .pd-chip {
+    @apply rounded-full px-3 py-[5px] text-xs font-bold;
+    color: color-mix(in srgb, var(--accent) 82%, black);
+    background: color-mix(in srgb, var(--accent) 16%, white);
+    border: 1.5px solid color-mix(in srgb, var(--accent) 38%, white);
+  }
+
+  .pd-stamp {
+    @apply pointer-events-none absolute top-7 z-[3] rounded-xl border-4 border-current px-[18px]
+           py-1.5 text-2xl font-black tracking-wider opacity-0;
+    backdrop-filter: blur(2px);
+  }
+
+  .pd-stamp-like {
+    @apply right-5 rotate-14 text-green-brand;
+    background: rgb(18 183 106 / 0.12);
+  }
+
+  .pd-stamp-pass {
+    @apply left-5 -rotate-14 text-pink-brand;
+    background: rgb(255 46 116 / 0.12);
+  }
+
+  /* ---------- controls ---------- */
+
+  .pd-controls {
+    @apply mt-6 flex justify-center gap-6;
+  }
+
+  .pd-fab {
+    @apply size-[68px] cursor-pointer rounded-full border-0 text-[1.7rem] transition
+           hover:-translate-y-0.5 hover:scale-105 active:scale-95
+           disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:translate-y-0
+           disabled:hover:scale-100;
+  }
+
+  .pd-fab-pass {
+    @apply border-[3px] border-solid bg-white text-pink-brand;
+    border-color: color-mix(in srgb, var(--color-pink-brand) 45%, white);
+    box-shadow: 0 12px 26px rgb(255 46 116 / 0.28);
+  }
+
+  .pd-fab-pass:hover {
+    @apply bg-pink-brand text-white;
+  }
+
+  .pd-fab-like {
+    @apply bg-gradient-to-br from-green-brand to-teal text-white;
+    box-shadow: 0 12px 26px rgb(18 183 106 / 0.38);
+  }
+
+  .pd-fab-like:hover {
+    @apply from-green-dark;
+  }
+
+  .pd-hint {
+    @apply mt-4 text-center text-[0.84rem] text-muted;
+  }
+
+  /* ---------- done panel ---------- */
+
+  .pd-done {
+    @apply mt-1.5 rounded-card border-[3px] border-solid p-11 text-center shadow-card;
+    border-color: color-mix(in srgb, var(--color-violet) 25%, white);
+    background: linear-gradient(
+      160deg,
+      #fff 0%,
+      color-mix(in srgb, var(--color-violet) 10%, white) 100%
+    );
+  }
+
+  .pd-done-emoji {
+    @apply text-[3.4rem];
+  }
+
+  .pd-done h2 {
+    @apply mt-3 mb-1.5 text-xl;
+  }
+
+  .pd-done-summary {
+    @apply mt-0 mb-[22px] font-semibold text-muted;
+  }
+
+  .pd-reset {
+    @apply cursor-pointer rounded-full border-0 bg-gradient-to-br from-pink-brand to-violet
+           px-6 py-3 font-extrabold text-white transition
+           hover:-translate-y-0.5 hover:brightness-110;
+    box-shadow: 0 10px 24px rgb(139 92 246 / 0.35);
+  }
+
+  /* ---------- matches ---------- */
+
+  .pd-matches-title {
+    @apply mt-2.5 mb-0.5 bg-gradient-to-r from-pink-brand to-violet bg-clip-text text-transparent;
+  }
+
+  .pd-matches-sub {
+    @apply mt-0 mb-[18px] text-[0.92rem] font-semibold text-muted;
+  }
+
+  .pd-match-list {
+    @apply m-0 mb-6 grid list-none gap-3 p-0;
+  }
+
+  .pd-match {
+    @apply grid grid-cols-[58px_1fr_auto] items-center gap-3.5 rounded-[18px] border-l-[6px]
+           bg-paper px-4 py-3.5;
+    box-shadow: 0 10px 24px rgb(25 18 51 / 0.09);
+    animation: rise 0.32s ease both;
+  }
+
+  .pd-match:nth-child(1) { animation-delay: 0.02s; }
+  .pd-match:nth-child(2) { animation-delay: 0.06s; }
+  .pd-match:nth-child(3) { animation-delay: 0.10s; }
+  .pd-match:nth-child(4) { animation-delay: 0.14s; }
+
+  .pd-match-emoji {
+    @apply grid size-[58px] place-items-center rounded-full border-[2.5px] border-solid text-[1.7rem];
+    border-color: color-mix(in srgb, var(--accent) 45%, white);
+    background: linear-gradient(
+      140deg,
+      color-mix(in srgb, var(--accent) 30%, white) 0%,
+      color-mix(in srgb, var(--accent) 10%, white) 100%
+    );
+  }
+
+  .pd-match-name {
+    @apply m-0 text-[1.05rem];
+  }
+
+  .pd-match-meta {
+    @apply mt-0.5 mb-0 text-[0.84rem] font-semibold text-muted;
+  }
+
+  .pd-match-score {
+    @apply text-right;
+  }
+
+  .pd-match-score b {
+    @apply block text-xl font-black;
+  }
+
+  .pd-match-score span {
+    @apply text-xs font-bold tracking-wide text-muted uppercase;
+  }
+
+  .pd-empty {
+    @apply px-2.5 py-[30px] text-center font-semibold text-muted;
+  }
+}
+
+/* The accent variable is set per element in JS. These cannot go through
+   @apply — Tailwind cannot apply a utility whose value comes from a custom
+   property set at runtime, and it drops the rule silently. */
+.pd-card {
+  border-color: var(--accent);
+}
+
+.pd-age,
+.pd-match-score b {
+  color: var(--accent);
+}
+
+.pd-match {
+  border-left-color: var(--accent);
+}
+
+@layer utilities {
+  .pd-card.dragging {
+    transition: none;
+  }
+
+  .pd-card.settling {
+    transition: transform 0.28s ease, opacity 0.28s ease;
+  }
+
+  .pd-card.fly-right {
+    transform: translate(140%, -40px) rotate(22deg) !important;
+    opacity: 0;
+  }
+
+  .pd-card.fly-left {
+    transform: translate(-140%, -40px) rotate(-22deg) !important;
+    opacity: 0;
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .pd-deck {
+    @apply h-[500px];
+  }
+  .pd-art {
+    @apply h-[172px] text-[4.2rem];
+  }
+}
