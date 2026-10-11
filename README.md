@@ -89,4 +89,4 @@ The pins in the workflow were checked against the upstream releases rather than 
 
 These are moving major tags, so a patch release is picked up automatically.
 
-`node-version` is pinned to `'24'`. Node 24 is the Active LTS line, but note that its active support ends **20 October 2026**, after which it moves to maintenance until 30 April 2028. Node 26 becomes LTS on **28 October 2026**; moving to it is a one-line change once the toolchain you use locally has caught up.
+`node-version` is pinned to `'26'`. Node 26 became LTS on **28 October 2026** under Node's newer one-release-a-year schedule, with support through April 2029. It supersedes Node 24, whose active support ended **20 October 2026** — 24 remains in maintenance (security fixes) until 30 April 2028, so bumping back is a one-line change if you ever need to.
