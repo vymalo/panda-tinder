@@ -2,6 +2,8 @@
 
 A swipe-to-match dating site where every profile is a panda. No dependencies, no build step, no framework — plain HTML, CSS and ES modules.
 
+[![Deploy to GitHub Pages](https://github.com/vymalo/panda-tinder/actions/workflows/pages.yml/badge.svg)](https://github.com/vymalo/panda-tinder/actions/workflows/pages.yml)
+
 ![The swipe deck](docs/1-swipe.png)
 
 ## What it does
@@ -34,7 +36,16 @@ Or just open `index.html` directly — it is entirely client-side, so no server 
 npm test
 ```
 
-19 tests, using Node's built-in test runner. No test dependencies.
+19 tests, using Node's built-in test runner.
+
+## Lint it
+
+```bash
+npm install   # once, to get ESLint
+npm run lint
+```
+
+`npm run ci` runs the lint and the tests together, which is what the workflow does. ESLint is the only development dependency; the site itself still ships with none.
 
 ## How it works
 

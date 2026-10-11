@@ -1,7 +1,7 @@
 name: Deploy to GitHub Pages
 
 # The site is static: "building" it means assembling the handful of files that
-# need serving. Tests run first so a broken commit is never published.
+# need serving. Lint and tests run first so a broken commit is never published.
 
 on:
   push:
@@ -20,17 +20,22 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  test:
+  check:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
         with:
           node-version: '26'
-      - run: npm test
+      - name: Install development dependencies
+        run: npm install --no-audit --no-fund
+      - name: Lint
+        run: npm run lint
+      - name: Test
+        run: npm test
 
   deploy:
-    needs: test
+    needs: check
     runs-on: ubuntu-latest
     environment:
       name: github-pages
