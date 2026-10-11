@@ -1,18 +1,25 @@
 {
   "name": "panda-tinder",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": true,
   "description": "A swipe-to-match dating site where every profile is a panda.",
   "type": "module",
   "scripts": {
-    "start": "node server.js",
+    "build": "node scripts/build.mjs",
+    "start": "node scripts/serve.mjs",
+    "typecheck": "tsc --noEmit",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "pretest": "node scripts/build.mjs",
     "test": "node --test test/*.test.js",
-    "lint": "eslint .",
-    "ci": "npm run lint && npm test"
+    "ci": "npm run lint && npm run typecheck && npm test && npm run build"
   },
   "devDependencies": {
-    "@eslint/js": "^10.0.1",
-    "eslint": "^10.12.0",
-    "globals": "^17.13.0"
+    "@biomejs/biome": "^2.5.15",
+    "@swc/core": "^1.16.18",
+    "@tailwindcss/postcss": "^4.3.3",
+    "postcss": "^8.5.16",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^7.0.2"
   }
 }

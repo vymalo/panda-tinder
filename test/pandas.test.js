@@ -1,16 +1,18 @@
-import test from 'node:test';
 import assert from 'node:assert/strict';
+import test from 'node:test';
 
+// Tests run against the compiled output, which is what actually ships. The
+// build must run first: `npm test` depends on `_site/src/pandas.js` existing.
 import {
-  PANDAS,
-  ACTIONS,
   ACCENTS,
+  ACTIONS,
   accentFor,
-  matchScore,
   buildDeck,
+  matchScore,
+  PANDAS,
   rng,
   SwipeState,
-} from '../src/pandas.js';
+} from '../_site/src/pandas.js';
 
 test('roster is well formed', () => {
   assert.ok(PANDAS.length >= 8, 'wants at least 8 pandas');
@@ -32,14 +34,33 @@ test('every panda resolves to a known accent', () => {
 });
 
 test('accentFor falls back to a stable accent from the id', () => {
-  const nameless = { id: 'no-accent-here', name: 'X', age: 5, location: '', emoji: '', tagline: '', bio: '', likes: ['a'] };
+  const nameless = {
+    id: 'no-accent-here',
+    name: 'X',
+    age: 5,
+    location: '',
+    emoji: '',
+    tagline: '',
+    bio: '',
+    likes: ['a'],
+  };
   const first = accentFor(nameless);
   assert.ok(ACCENTS.includes(first));
   assert.equal(first, accentFor(nameless), 'not stable across calls');
 });
 
 test('accentFor ignores an unknown accent and still returns a real one', () => {
-  const odd = { id: 'x', name: 'X', age: 5, location: '', emoji: '', tagline: '', bio: '', likes: ['a'], accent: 'chartreuse' };
+  const odd = {
+    id: 'x',
+    name: 'X',
+    age: 5,
+    location: '',
+    emoji: '',
+    tagline: '',
+    bio: '',
+    likes: ['a'],
+    accent: 'chartreuse',
+  };
   assert.ok(ACCENTS.includes(accentFor(odd)));
 });
 
@@ -76,15 +97,42 @@ test('a panda matches itself highest', () => {
 });
 
 test('identically-interested pandas score full marks', () => {
-  const a = { id: 'a', name: 'A', age: 10, location: 'x', emoji: '🐼', tagline: '', bio: '', likes: ['bamboo', 'napping'] };
+  const a = {
+    id: 'a',
+    name: 'A',
+    age: 10,
+    location: 'x',
+    emoji: '🐼',
+    tagline: '',
+    bio: '',
+    likes: ['bamboo', 'napping'],
+  };
   const b = { ...a, id: 'b', name: 'B' };
   assert.equal(matchScore(a, b), 100);
 });
 
 test('a wide age gap lowers the score', () => {
   const likes = ['bamboo', 'napping', 'eating'];
-  const young = { id: 'y', name: 'Y', age: 3, location: 'x', emoji: '🐼', tagline: '', bio: '', likes };
-  const old = { id: 'o', name: 'O', age: 23, location: 'x', emoji: '🐼', tagline: '', bio: '', likes };
+  const young = {
+    id: 'y',
+    name: 'Y',
+    age: 3,
+    location: 'x',
+    emoji: '🐼',
+    tagline: '',
+    bio: '',
+    likes,
+  };
+  const old = {
+    id: 'o',
+    name: 'O',
+    age: 23,
+    location: 'x',
+    emoji: '🐼',
+    tagline: '',
+    bio: '',
+    likes,
+  };
   assert.ok(matchScore(young, old) < 100);
   assert.ok(matchScore(young, old) > 0);
 });
@@ -102,7 +150,7 @@ test('rng is deterministic for a seed and stays in [0,1)', () => {
 test('buildDeck is deterministic for a seed', () => {
   assert.deepEqual(
     buildDeck(PANDAS, 7).map((p) => p.id),
-    buildDeck(PANDAS, 7).map((p) => p.id)
+    buildDeck(PANDAS, 7).map((p) => p.id),
   );
 });
 
@@ -111,7 +159,11 @@ test('buildDeck keeps every panda exactly once and does not mutate the input', (
   const deck = buildDeck(PANDAS, 3);
   assert.equal(deck.length, PANDAS.length);
   assert.deepEqual([...deck.map((p) => p.id)].sort(), [...original].sort());
-  assert.deepEqual(PANDAS.map((p) => p.id), original, 'input was mutated');
+  assert.deepEqual(
+    PANDAS.map((p) => p.id),
+    original,
+    'input was mutated',
+  );
 });
 
 test('ACTIONS lists exactly like and pass', () => {

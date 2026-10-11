@@ -1,7 +1,7 @@
 name: Deploy to GitHub Pages
 
-# The site is static: "building" it means assembling the handful of files that
-# need serving. Lint and tests run first so a broken commit is never published.
+# Lint, type-check, test and build, then publish the build output. Every step
+# runs before anything is published, so a broken commit is never deployed.
 
 on:
   push:
@@ -27,12 +27,21 @@ jobs:
       - uses: actions/setup-node@v7
         with:
           node-version: '26'
-      - name: Install development dependencies
-        run: npm install --no-audit --no-fund
-      - name: Lint
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Lint and format (Biome)
         run: npm run lint
+      - name: Type-check (TypeScript)
+        run: npm run typecheck
       - name: Test
         run: npm test
+      - name: Build (SWC + Tailwind)
+        run: npm run build
+      - name: Upload the build output
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: _site
 
   deploy:
     needs: check
@@ -41,15 +50,5 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/configure-pages@v6
-      - name: Assemble the site
-        run: |
-          mkdir -p _site
-          cp index.html styles.css server.js _site/
-          cp -r src _site/src
-      - uses: actions/upload-pages-artifact@v5
-        with:
-          path: _site
-      - id: deployment
-        uses: actions/deploy-pages@v5
+      - uses: actions/deploy-pages@v5
+        id: deployment

@@ -1,2 +1,4 @@
 node_modules/
 _site/
+*.tsbuildinfo
+.DS_Store
